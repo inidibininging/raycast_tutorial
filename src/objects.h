@@ -1,9 +1,11 @@
-typedef struct ball_t {
+typedef struct rect_t {
 	float x;
 	float y;
 	float width;
 	float height;
-} ball;
+} rect;
+
+typedef rect ball;
 
 typedef struct vec2_t {
   float x;
