@@ -4,3 +4,16 @@ typedef struct ball_t {
 	float width;
 	float height;
 } ball;
+
+typedef struct vec2_t {
+  float x;
+  float y;
+} vec2;
+
+void ball_move(vec2* vel);
+
+void vec2_add (vec2* a, vec2* b);
+void vec2_subs (vec2* a, vec2* b);
+void vec2_mul (vec2* a, vec2* b);
+void vec2_div (vec2* a, vec2* b);
+

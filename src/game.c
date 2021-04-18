@@ -14,12 +14,16 @@ byte bg_color_rgba[4] = {
 				255
 			};
 ball game_ball;
+vec2 game_ball_vel;
 
 int setup() {
 	game_ball.x = WINDOW_WIDTH / 2;
 	game_ball.y = WINDOW_HEIGHT / 2;
 	game_ball.width = 10;
 	game_ball.height = 10;
+
+  game_ball_vel.x = 0;
+  game_ball_vel.y = 0;
 	return TRUE;
 }
 
@@ -72,6 +76,32 @@ int main() {
 	return FALSE;
 }
 
+void apply_vel() {
+  game_ball.x += game_ball_vel.x;
+  game_ball.y += game_ball_vel.y;
+}
+
+
+void update_ball_bounce()
+{
+  if(game_ball.x < 0)
+  {
+    game_ball_vel.x *= -1;
+  }
+  if(game_ball.x > WINDOW_WIDTH)
+  {
+    game_ball_vel.x *= -1;
+  }
+  if(game_ball.y > WINDOW_HEIGHT)
+  {
+    game_ball_vel.y *= -1;
+  }
+  if(game_ball.y < 0)
+  {
+    game_ball_vel.y *= -1;
+  }
+}
+
 void process_input() {
 	SDL_Event event;
 	SDL_PollEvent(&event);
@@ -84,16 +114,48 @@ void process_input() {
 		case SDL_KEYDOWN:
 			if(event.key.keysym.sym == SDLK_ESCAPE)
 				game_running = FALSE;
+      if(event.key.keysym.sym == SDLK_LEFT)
+      {
+        game_ball_vel.x = -.5;
+      }
+      if(event.key.keysym.sym == SDLK_RIGHT)
+      {
+        game_ball_vel.x = .5;
+      }
+      if(event.key.keysym.sym == SDLK_UP)
+      {
+        game_ball_vel.y = -.5;
+      }
+      if(event.key.keysym.sym == SDLK_DOWN)
+      {
+        game_ball_vel.y = .5;
+      }
 			break;
 	}
 }
 
- 
-
-void update() {
+void blink()
+{
 	bg_color_rgba[BG_RED_INDEX] = bg_color_rgba[BG_RED_INDEX] - 1;
 	if(bg_color_rgba[BG_RED_INDEX == 0])
 		bg_color_rgba[BG_RED_INDEX] = 255;
+}
+
+void update() {
+  apply_vel();
+  update_ball_bounce();
+}
+
+void render_ball() {
+	SDL_Rect ball_rect = {
+		game_ball.x,
+		game_ball.y,
+		game_ball.width,
+		game_ball.height
+	};
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	SDL_RenderFillRect(renderer, &ball_rect);
+	
 }
 
 void render() {
@@ -104,15 +166,9 @@ void render() {
 			bg_color_rgba[BG_BLUE_INDEX], 
 			bg_color_rgba[BG_ALPHA_INDEX]);
 	SDL_RenderClear(renderer);
-	SDL_Rect ball_rect = {
-		game_ball.x,
-		game_ball.y,
-		game_ball.width,
-		game_ball.height
-	};
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-	SDL_RenderFillRect(renderer, &ball_rect);
-	
+  
+  render_ball();
+
 	//start drawing game objects
 	SDL_RenderPresent(renderer);
 }
