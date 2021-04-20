@@ -1,3 +1,5 @@
+#ifndef OBJECTS_H_
+#define OBJECTS_H_
 typedef struct rect_t {
 	float x;
 	float y;
@@ -5,17 +7,27 @@ typedef struct rect_t {
 	float height;
 } rect;
 
-typedef rect ball;
-
 typedef struct vec2_t {
   float x;
   float y;
 } vec2;
 
-void ball_move(vec2* vel);
+typedef struct vec2_it {
+  int x;
+  int y;
+} vec2_i;
 
 void vec2_add (vec2* a, vec2* b);
 void vec2_subs (vec2* a, vec2* b);
 void vec2_mul (vec2* a, vec2* b);
 void vec2_div (vec2* a, vec2* b);
 
+typedef struct gameobject_movable_t {
+  int direction;
+  int mv_step;
+  vec2 position;
+} go_mov;
+
+void init_go_mov(go_mov* instance);
+
+#endif

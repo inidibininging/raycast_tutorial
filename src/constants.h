@@ -21,3 +21,26 @@ typedef unsigned char byte;
 #define BG_ALPHA_INDEX 3
 #endif
 
+#ifndef ROTATION_LEFT
+#define ROTATION_LEFT -1
+#endif
+
+#ifndef ROTATION_RIGHT
+#define ROTATION_RIGHT 1
+#endif
+
+#ifndef MAP_WIDTH
+#define MAP_WIDTH 10
+#endif
+
+#ifndef MAP_HEIGHT
+#define MAP_HEIGHT 10
+#endif
+
+#ifndef MAP_CENTER_X 
+#define MAP_CENTER_X MAP_WIDTH / 2
+#endif
+
+#ifndef MAP_CENTER_Y
+#define MAP_CENTER_Y MAP_HEIGHT / 2
+#endif
