@@ -3,10 +3,13 @@
 #include "./constants.h"
 #include "./objects.h"
 #include "./map.h"
+#include "./game.h"
 
 int game_running = TRUE;
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
+line* someLine = NULL;
+go_mov player;
 
 byte bg_color_rgba[4] = {
 				0,
@@ -15,10 +18,8 @@ byte bg_color_rgba[4] = {
 				255
 			};
 
-
-
 int setup() {
-  return TRUE;
+  init_go_mov(&player);
 }
 
 int initialize_window(void) {
@@ -52,10 +53,6 @@ void destroy_window(){
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 }
-
-void process_input();
-void update();
-void render();
 
 int main() {
 	game_running = initialize_window();
@@ -100,9 +97,11 @@ void process_input() {
       
       if(event.key.keysym.sym == SDLK_LEFT)
       {
+
       }
       if(event.key.keysym.sym == SDLK_RIGHT)
       {
+
       }
       if(event.key.keysym.sym == SDLK_UP)
       {
@@ -130,10 +129,6 @@ void no_ouch_bg()
   bg_color_rgba[BG_RED_INDEX] = 0;
 }
 
-void update() {
-}
-
-
 void render_bg() {
 	SDL_SetRenderDrawColor(
 			renderer, 
@@ -145,7 +140,7 @@ void render_bg() {
   
 }
 
-void render_rect(rect* rect) {
+void render_rect(rect* rect, color* color) {
 	SDL_Rect sdlrect = {
 		rect->x,
 		rect->y,
@@ -156,9 +151,14 @@ void render_rect(rect* rect) {
 	SDL_RenderFillRect(renderer, &sdlrect);
 }
 
+void render_line(line* line, color* color) {
+  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+  SDL_RenderDrawLineF(renderer, line->x1, line->y1, line->x2, line->y2);
+}
+
 void render() {
   render_bg();
-	
+  render_line(someLine, NULL);	
   //start drawing game objects
 	SDL_RenderPresent(renderer);
 }

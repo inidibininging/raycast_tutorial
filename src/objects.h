@@ -1,11 +1,19 @@
 #ifndef OBJECTS_H_
 #define OBJECTS_H_
+typedef struct color_t {
+  byte r, g, b , a;
+} color;
+
 typedef struct rect_t {
 	float x;
 	float y;
 	float width;
 	float height;
 } rect;
+
+typedef struct line_t {
+  float x1, y1, x2, y2;
+} line;
 
 typedef struct vec2_t {
   float x;
