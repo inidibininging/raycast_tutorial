@@ -8,8 +8,10 @@
 int game_running = TRUE;
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
-line* someLine = NULL;
 go_mov player;
+map player_map;
+rect r;
+line l;
 
 byte bg_color_rgba[4] = {
 				0,
@@ -19,7 +21,20 @@ byte bg_color_rgba[4] = {
 			};
 
 int setup() {
-  init_go_mov(&player);
+  go_mov_init(&player);
+  map_demo(&player_map);
+  
+  player.direction = ROTATION_LEFT;
+  player.position.x = WINDOW_WIDTH / 2;
+  player.position.y = WINDOW_HEIGHT / 2;
+   
+  r.width = 16;
+  r.height = 16;
+  r.x = player.position.x;
+  r.y = player.position.y;
+
+  map_demo(&player_map);
+  return TRUE;
 }
 
 int initialize_window(void) {
@@ -52,6 +67,16 @@ void destroy_window(){
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
+}
+
+void update()
+{
+  r.x = player.position.x - (r.width / 2);
+  r.y = player.position.y - (r.height / 2);
+  l.x1 = player.position.x;
+  l.y1 = player.position.y; 
+  l.x2 = player.position.x + (sin(player.rotation) * player.mv_step * 20);
+  l.y2 = player.position.y + (cos(player.rotation) * player.mv_step * 20);
 }
 
 int main() {
@@ -93,21 +118,26 @@ void process_input() {
 			break;
 		case SDL_KEYDOWN:
 			if(event.key.keysym.sym == SDLK_ESCAPE)
-				game_running = FALSE;
-      
-      if(event.key.keysym.sym == SDLK_LEFT)
       {
-
+				game_running = FALSE;
+      }
+      if(event.key.keysym.sym == SDLK_LEFT)
+      {      
+        player.rotation -= 1 * player.direction;
       }
       if(event.key.keysym.sym == SDLK_RIGHT)
       {
-
+        player.rotation += 1 * player.direction;
       }
       if(event.key.keysym.sym == SDLK_UP)
       {
+        player.position.x += sin(player.rotation) * player.mv_step * -1 * player.direction;
+        player.position.y += cos(player.rotation) * player.mv_step * -1 * player.direction;
       }
       if(event.key.keysym.sym == SDLK_DOWN)
       {
+        player.position.x += sin(player.rotation) * player.mv_step * player.direction;
+        player.position.y += cos(player.rotation) * player.mv_step * player.direction;
       }
 			break;
 	}
@@ -158,7 +188,8 @@ void render_line(line* line, color* color) {
 
 void render() {
   render_bg();
-  render_line(someLine, NULL);	
+  render_rect(&r, NULL);
+  render_line(&l, NULL); 
   //start drawing game objects
 	SDL_RenderPresent(renderer);
 }

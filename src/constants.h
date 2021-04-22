@@ -7,7 +7,11 @@
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
 
+#ifndef BYTE_H_
+#define BYTE_H_
 typedef unsigned char byte;
+#endif
+
 #ifndef BG_RED_INDEX
 #define BG_RED_INDEX 0
 #endif

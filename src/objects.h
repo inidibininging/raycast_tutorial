@@ -1,3 +1,5 @@
+#include "./constants.h"
+
 #ifndef OBJECTS_H_
 #define OBJECTS_H_
 typedef struct color_t {
@@ -34,8 +36,9 @@ typedef struct gameobject_movable_t {
   int direction;
   int mv_step;
   vec2 position;
+  float rotation;
 } go_mov;
 
-void init_go_mov(go_mov* instance);
+void go_mov_init(go_mov* instance);
 
 #endif
