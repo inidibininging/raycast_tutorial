@@ -7,24 +7,25 @@ typedef struct color_t {
 } color;
 
 typedef struct rect_t {
-	float x;
-	float y;
-	float width;
-	float height;
+	float x, y, width, height;
 } rect;
+
+
+typedef struct rect_ll_t {
+  rect* current;
+  struct rect_ll_t* next;
+} rect_ll;
 
 typedef struct line_t {
   float x1, y1, x2, y2;
 } line;
 
 typedef struct vec2_t {
-  float x;
-  float y;
+  float x, y;
 } vec2;
 
 typedef struct vec2_it {
-  int x;
-  int y;
+  int x, y;
 } vec2_i;
 
 void vec2_add (vec2* a, vec2* b);

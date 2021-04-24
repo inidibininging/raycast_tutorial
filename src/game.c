@@ -8,10 +8,16 @@
 int game_running = TRUE;
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
+
 go_mov player;
 map player_map;
+rect_ll* walls = NULL;
+
+//player view
 rect r;
 line l;
+line h;
+line* rays = NULL;
 
 byte bg_color_rgba[4] = {
 				0,
@@ -23,8 +29,10 @@ byte bg_color_rgba[4] = {
 int setup() {
   go_mov_init(&player);
   map_demo(&player_map);
-  
-  player.direction = ROTATION_LEFT;
+  walls = map_get_rects(&player_map);
+  rays = (line*)malloc(sizeof(line) * WINDOW_WIDTH);
+
+  player.direction = ROTATION_RIGHT;
   player.position.x = WINDOW_WIDTH / 2;
   player.position.y = WINDOW_HEIGHT / 2;
    
@@ -73,10 +81,19 @@ void update()
 {
   r.x = player.position.x - (r.width / 2);
   r.y = player.position.y - (r.height / 2);
+  
   l.x1 = player.position.x;
   l.y1 = player.position.y; 
-  l.x2 = player.position.x + (sin(player.rotation) * player.mv_step * 20);
-  l.y2 = player.position.y + (cos(player.rotation) * player.mv_step * 20);
+  l.x2 = player.position.x + (cos(player.rotation) * player.mv_step * FOV);
+  l.y2 = player.position.y + (sin(player.rotation) * player.mv_step * FOV);
+
+  
+}
+
+void rays_destroy()
+{
+  //this is so metal
+  free(rays);
 }
 
 int main() {
@@ -87,7 +104,8 @@ int main() {
 		update();
 		render();		
 	}
-
+  map_destroy(&player_map);
+  rays_destroy();
 	destroy_window();
 	return FALSE;
 }
@@ -123,21 +141,21 @@ void process_input() {
       }
       if(event.key.keysym.sym == SDLK_LEFT)
       {      
-        player.rotation -= 1 * player.direction;
+        player.rotation -= 0.1 * player.direction;
       }
       if(event.key.keysym.sym == SDLK_RIGHT)
       {
-        player.rotation += 1 * player.direction;
+        player.rotation += 0.1 * player.direction;
       }
       if(event.key.keysym.sym == SDLK_UP)
       {
-        player.position.x += sin(player.rotation) * player.mv_step * -1 * player.direction;
-        player.position.y += cos(player.rotation) * player.mv_step * -1 * player.direction;
+        player.position.x += cos(player.rotation) * player.mv_step * player.direction;
+        player.position.y += sin(player.rotation) * player.mv_step * player.direction;
       }
       if(event.key.keysym.sym == SDLK_DOWN)
       {
-        player.position.x += sin(player.rotation) * player.mv_step * player.direction;
-        player.position.y += cos(player.rotation) * player.mv_step * player.direction;
+        player.position.x += cos(player.rotation) * player.mv_step * player.direction * -1;
+        player.position.y += sin(player.rotation) * player.mv_step * player.direction * -1;
       }
 			break;
 	}
@@ -177,7 +195,10 @@ void render_rect(rect* rect, color* color) {
 		rect->width,
 		rect->height
 	};
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+  if(color == NULL)
+	  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+  else
+    SDL_SetRenderDrawColor(renderer, color->r, color->g, color->b, color->a);
 	SDL_RenderFillRect(renderer, &sdlrect);
 }
 
@@ -186,10 +207,111 @@ void render_line(line* line, color* color) {
   SDL_RenderDrawLineF(renderer, line->x1, line->y1, line->x2, line->y2);
 }
 
+void render_view(go_mov* p)
+{
+
+  //FOV / 2 because the player looks at the center. so the max position is related to FOV / 2
+  float ray_angle = p->rotation - ((FOV_HALF * 3.14) / 180);  
+  int column = 0; 
+  while(column < WINDOW_WIDTH)
+  {
+    //cast a ray
+    //get grid, where player interesects
+    rays[column].x1 = p->position.x;
+    rays[column].y1 = p->position.y;
+    rays[column].x2 = p->position.x + cos(ray_angle) * p->mv_step * FOV;
+    rays[column].y2 = p->position.y + sin(ray_angle) * p->mv_step * FOV;
+   
+    for(int map_y = 0; map_y < player_map.rows; map_y++)
+    {
+      for(int map_x = 0; map_x < player_map.columns; map_x++)
+      {
+
+        if(p->position.x > player_map.cells[map_y][map_x].position.x &&
+           p->position.x < player_map.cells[map_y][map_x].position.x + CELL_WIDTH &&
+           p->position.y > player_map.cells[map_y][map_x].position.y &&
+           p->position.y < player_map.cells[map_y][map_x].position.y + CELL_HEIGHT)
+        {
+
+          static rect lecell;
+          lecell.x = player_map.cells[map_y][map_x].position.x;
+          lecell.y = player_map.cells[map_y][map_x].position.y;
+          lecell.width = CELL_WIDTH;
+          lecell.height = CELL_HEIGHT;
+          
+          static color lecolour;
+          lecolour.r = 0;
+          lecolour.g = 128;
+          lecolour.b = 128;
+          lecolour.a = 128;
+
+          render_rect(&lecell, &lecolour);
+          
+          float intersect_x = 0;
+          float intersect_y = 0;
+          
+          //right
+          if(rays[column].x2 > player_map.cells[map_y][map_x].position.x + CELL_WIDTH)
+          {
+            intersect_x = player_map.cells[map_y][map_x].position.x + CELL_WIDTH;
+            intersect_y = p->position.y + (tan(ray_angle) * (player_map.cells[map_y][map_x].position.x + CELL_WIDTH - p->position.x)); 
+          }
+
+          //left
+          if(rays[column].x2 < player_map.cells[map_y][map_x].position.x)
+          {
+            //intersect_x = rays[column].x2 - player_map.cells[map_y][map_x].position.x;
+            //intersect_y = rays[column].y2 - player_map.cells[map_y][map_x].position.y;
+          }
+
+          //bottom
+          if(rays[column].y2 > player_map.cells[map_y][map_x].position.y + CELL_HEIGHT)
+          {
+            //intersect_y = rays[column].y2 - player_map.cells[map_y][map_x].position.y + CELL_HEIGHT;
+            //intersect_x = rays[column].x2 - player_map.cells[map_y][map_x].position.x + CELL_WIDTH;
+          }
+
+          //top
+          if(rays[column].y2 < player_map.cells[map_y][map_x].position.y)
+          {
+            //intersect_y = rays[column].y2 - player_map.cells[map_y][map_x].position.y;
+            //intersect_x = rays[column].x2 - player_map.cells[map_y][map_x].position.x;
+          }
+
+          if(intersect_x != 0 ||
+             intersect_y != 0)
+          {
+            static rect interect;
+            interect.x = intersect_x;
+            interect.y = intersect_y;
+            interect.width = 2;
+            interect.height = 2;
+
+            static color red;
+            red.r = 255;
+            red.g = 0;
+            red.b = 0;
+            red.a = 255;
+
+            render_rect(&interect, &red);
+          }
+          break;
+        } 
+      }  
+    }
+  
+    render_line(&rays[column], NULL);
+   
+    ray_angle += (((float)FOV / ((float)WINDOW_WIDTH) * 3.14) / 180); //WINDOW_WIDTH_HALF stands for the number of rays to cast (resolution)
+    column++;
+  } 
+}
+
 void render() {
   render_bg();
   render_rect(&r, NULL);
   render_line(&l, NULL); 
+  render_view(&player);
   //start drawing game objects
 	SDL_RenderPresent(renderer);
 }

@@ -4,8 +4,26 @@
 #ifndef FALSE
 #define FALSE 0
 #endif
+
+#ifndef WINDOW_WIDTH
 #define WINDOW_WIDTH 640
+#endif
+
+#ifndef WINDOW_WIDTH_HALF
+#define WINDOW_WIDTH_HALF WINDOW_WIDTH / 2
+#endif
+
+#ifndef WINDOW_HEIGHT
 #define WINDOW_HEIGHT 480
+#endif
+
+#ifndef FOV
+#define FOV 60
+#endif
+
+#ifndef FOV_HALF
+#define FOV_HALF FOV / 2
+#endif
 
 #ifndef BYTE_H_
 #define BYTE_H_
@@ -34,11 +52,11 @@ typedef unsigned char byte;
 #endif
 
 #ifndef MAP_WIDTH
-#define MAP_WIDTH 10
+#define MAP_WIDTH 45
 #endif
 
 #ifndef MAP_HEIGHT
-#define MAP_HEIGHT 10
+#define MAP_HEIGHT 45
 #endif
 
 #ifndef MAP_CENTER_X 

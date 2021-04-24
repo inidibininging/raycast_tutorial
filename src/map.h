@@ -3,8 +3,8 @@
 
 #ifndef MAP_H_
 #define MAP_H_
-#define CELL_WIDTH 10
-#define CELL_HEIGHT 10
+#define CELL_WIDTH 32
+#define CELL_HEIGHT 32
 
 enum texture_t
 {
@@ -16,7 +16,7 @@ enum texture_t
 };
 
 typedef struct cell_t {
-  struct vec2_it position;
+  vec2_i position;
   enum texture_t tex;
 } cell;
 
@@ -28,9 +28,9 @@ typedef struct map_t
 } map;
 
 void map_init(char* path, map* map);
-void map_demo(map* map);
+int map_demo(map* map);
 void map_render_player(go_mov* player);
-void map_render_cell(cell* cell);
+rect_ll* map_get_rects(map* map);
 void map_render(map* map);
 void map_destroy(map* map);
 
