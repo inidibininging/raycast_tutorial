@@ -1,3 +1,14 @@
+#game executable
+game
+
+#vs code
+.vscode
+
+#cmake
+cmake
+build
+
+
 # Logs
 logs
 *.log
