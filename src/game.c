@@ -247,13 +247,13 @@ void render_view(go_mov *p)
   while (column < WINDOW_WIDTH)
   {
     float intersect_x = p->position.x + ((intersect_y - p->position.y) / tan(ray_angle));
-    float y_step = CELL_WIDTH;
+    float y_step = 1;
 
     //get grid, where player interesects
     rays[column].x1 = p->position.x;
     rays[column].y1 = p->position.y;
-    rays[column].x2 = p->position.x + cos(ray_angle) * p->mv_step * FOV;
-    rays[column].y2 = p->position.y + sin(ray_angle) * p->mv_step * FOV;
+    rays[column].x2 = p->position.x + cos(ray_angle) * p->mv_step * 16;
+    rays[column].y2 = p->position.y + sin(ray_angle) * p->mv_step * 16;
 
     int facing_down = ray_angle > 0 && ray_angle < PI;
     int facing_up = !facing_down;
@@ -289,11 +289,11 @@ void render_view(go_mov *p)
 
       x_step = CELL_WIDTH / tan(ray_angle);
       x_step *= facing_left && x_step > 0 ? -1 : 1;
-      x_step *= facing_right && x_step < 0 ? 1 : -1;
+      x_step *= facing_right && x_step < 0 ? -1 : 1;
       
-      y_step += CELL_HEIGHT;
-      y_step *= facing_up && y_step > 0 ? 1 : -1;
-      y_step *= facing_down && y_step > 0 ? 1 : -1;
+      // y_step += CELL_HEIGHT;
+      y_step *= facing_up && y_step > 0 ? CELL_WIDTH * -1 : CELL_WIDTH;
+      y_step *= facing_down && y_step > 0 ? CELL_WIDTH  : CELL_WIDTH * -1;
 
       ray_map_x = (int)floor(intersect_x + x_step / CELL_WIDTH);
       ray_map_y = (int)floor(intersect_y + y_step / CELL_HEIGHT);

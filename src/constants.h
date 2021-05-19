@@ -19,7 +19,7 @@
 #endif
 
 #ifndef FOV
-#define FOV 60
+#define FOV 90
 #endif
 
 #ifndef FOV_HALF

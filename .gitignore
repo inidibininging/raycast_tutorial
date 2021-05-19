@@ -5,7 +5,6 @@ game
 .vscode
 
 #cmake
-cmake
 build
 
 
